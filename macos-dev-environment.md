@@ -43,8 +43,15 @@ I had originally set up a VM-based environment in Ubuntu for running InvenioRDM 
 
 If your environment is a new machine or virtual environment, your GitHub profile may not have an ssh key for it yet, and attempts to use `git+http://...` style addresses with `pip` will fail. If that's the case, [follow the GitHub instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key) for creating and adding an SSH key to your profile.
 
-## Setting up Invenio environment
+## Setting up the Invenio environment
 
+Start by creating a directory where you will do your work (if you haven't already) and `cd` into it. Let's say it's called "invenio". Here is an example:
+```
+mkdir invenio
+cd invenio
+```
+
+Next, follow this recipe:
 1. Exit your shell/bash, and restart your shell/bash.
 2. `pyenv install 3.9.13`
 3. `pyenv virtualenv 3.9.13 invenio-dev`
@@ -53,6 +60,5 @@ If your environment is a new machine or virtual environment, your GitHub profile
 6. Run the [associated shell script](install-req-from-github.sh). This will install all the Invenio Python packages and their dependencies from the GitHub source repositories.
 7. `nvm use 14.0.0`
 8. Start Docker (using the macOS Finder).
-9. `invenio-cli check-requirements --development` 
-
-The checks from the last step should come back all green.
+9. `invenio-cli check-requirements --development` and check that everything is green.
+10. `invenio-cli install` and check for errors.
