@@ -15,7 +15,7 @@ I had originally set up a VM-based environment in Ubuntu for running InvenioRDM 
     ```
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
     ```
-* Add the following to your `~/.bashrc` file at the end of the file. (If you don't have a `~/.bashrc` file,  create it first.)
+* Add the following lines to your `~/.bash_profile` file at the end of the file. (If you don't have a `~/.bash_profile` file,  create it first.)
     ```
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -24,16 +24,19 @@ I had originally set up a VM-based environment in Ubuntu for running InvenioRDM 
 * Install [HomeBrew](https://brew.sh) if you don't already have it:
     ```
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    brew shellenv >> ~/.bash_profile
     ```
 * Install some needed software packages using HomeBrew:
     ```
+    brew install postgresql
     brew install cairo
     brew install imagemagick
+    brew install ghostscript
     brew install pyenv
     brew install pyenv-virtualenv
     brew install git
     ```
-* Add the following to your `~/.bashrc` file at the end of the file:
+* Add the following to your `~/.bash_profile` file at the end of the file:
     ```
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
