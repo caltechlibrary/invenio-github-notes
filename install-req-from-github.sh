@@ -132,6 +132,7 @@ pip_install docker==5.0.3
 pip_install cookiecutter==1.7.3
 pip_install Flask-SQLAlchemy==2.5.1
 pip_install uritemplate.py==0.6.0
+pip_install virtualenv==20.13.0
 
 # OK, now let's get to it.
 
