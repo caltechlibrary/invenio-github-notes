@@ -1,90 +1,155 @@
 #!/usr/bin/env bash
 
-# The virtual env might have an older version, say version 21, and
-# the latest pip might be higher, say version 22, and have fixes to
-# dependency resolution or other fixes. Let's update it to be sure.
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+    echo "pyenv virtualenv not activated -- quitting"
+    exit 1
+fi
+
+# The virtual env might have an older version, say version 21, and the latest
+# pip might be higher, say version 22, and have fixes to dependency
+# resolution or other fixes. Let's update it to be sure.
 
 python3 -m pip install --upgrade pip
 
-# The principle here is to install the latest versions from the code repo
-# because I discovered that what you get from PyPI is in some cases broken
-# and unusuable. (Specifically, a file in invenio-webhooks contains an import
-# for something that doesn't exist.) The versions in the repos have many
-# commits done after the released versions.  We have to be careful not to
-# allow pip dependency resolution at this stage, because otherwise, pip
-# will happily load something from PyPI, defeating the goal here.
+# Define some helper functions used below.
+
+print_header() {
+    printf '%.0s=' {1..80}; echo ""
+    echo "========== installing $1"
+    printf '%.0s=' {1..80}; echo ""
+}
+
+pip_install() {
+    print_header $1
+    if [[ -n "$2" ]]; then
+        pip install "$2" $1
+    else
+        pip install $1
+    fi
+}
+
+# Start by installing a closure set of all invenio modules needed.  I created
+# this list iteratively, by installing invenio modules with normal pip
+# dependency resolution turned on, one at a time, and watching for additional
+# invenio modules that got installed, then adding them to the list below.
+#
+# The principle here is to install the latest versions from Github repos
+# because I discovered that what invenio modules you get from PyPI are in
+# some cases broken and unusuable.  The versions in the repos may also have
+# many commits after the PyPI-released versions.
+#
+# Note that in this step, we have to be careful NOT to allow pip's automatic
+# dependency resolution at this stage, because otherwise, pip will happily
+# load dependent Invenio modules from PyPI, defeating the goal here.
 
 github='git+https://github.com/inveniosoftware'
 
-# This list is longer, based on what invenio-cli installs.
+invenio=($github/invenio-access \
+         $github/invenio-accounts \
+         $github/invenio-admin \
+         $github/invenio-administration \
+         $github/invenio-app \
+         $github/invenio-app-rdm \
+         $github/invenio-assets \
+         $github/invenio-base \
+         $github/invenio-cache \
+         $github/invenio-celery \
+         $github/invenio-cli \
+         $github/invenio-communities \
+         $github/invenio-config \
+         $github/invenio-db \
+         $github/invenio-deposit \
+         $github/invenio-drafts-resources \
+         $github/invenio-files-rest \
+         $github/invenio-formatter \
+         $github/invenio-i18n \
+         $github/invenio-indexer \
+         $github/invenio-jsonschemas \
+         $github/invenio-logging \
+         $github/invenio-mail \
+         $github/invenio-oaiserver \
+         $github/invenio-oauth2server \
+         $github/invenio-oauthclient \
+         $github/invenio-pages \
+         $github/invenio-pidstore \
+         $github/invenio-previewer \
+         $github/invenio-rdm-records \
+         $github/invenio-records \
+         $github/invenio-records-files \
+         $github/invenio-records-permissions \
+         $github/invenio-records-resources \
+         $github/invenio-records-rest \
+         $github/invenio-records-ui \
+         $github/invenio-requests \
+         $github/invenio-rest \
+         $github/invenio-search \
+         $github/invenio-search-ui \
+         $github/invenio-theme \
+         $github/invenio-userprofiles \
+         $github/invenio-users-resources \
+         $github/invenio-userprofiles \
+         $github/invenio-vocabularies \
+         $github/docker-services-cli \
+         $github/pytest-invenio \
+         $github/Flask-Collect-Invenio.git \
+         $github/Flask-Security-Invenio.git \
+)
 
-pip3 install --no-dependencies $github/invenio-access
-pip3 install --no-dependencies $github/invenio-accounts
-pip3 install --no-dependencies $github/invenio-admin
-pip3 install --no-dependencies $github/invenio-app
-pip3 install --no-dependencies $github/invenio-app-rdm
-pip3 install --no-dependencies $github/invenio-assets
-pip3 install --no-dependencies $github/invenio-base
-pip3 install --no-dependencies $github/invenio-cache
-pip3 install --no-dependencies $github/invenio-celery
-pip3 install --no-dependencies $github/invenio-cli
-pip3 install --no-dependencies $github/invenio-communities
-pip3 install --no-dependencies $github/invenio-config
-pip3 install --no-dependencies $github/invenio-db
-pip3 install --no-dependencies $github/invenio-deposit
-pip3 install --no-dependencies $github/invenio-drafts-resources
-pip3 install --no-dependencies $github/invenio-files-rest
-pip3 install --no-dependencies $github/invenio-formatter
-pip3 install --no-dependencies $github/invenio-i18n
-pip3 install --no-dependencies $github/invenio-indexer
-pip3 install --no-dependencies $github/invenio-jsonschemas
-pip3 install --no-dependencies $github/invenio-logging
-pip3 install --no-dependencies $github/invenio-mail
-pip3 install --no-dependencies $github/invenio-oaiserver
-pip3 install --no-dependencies $github/invenio-oauth2server
-pip3 install --no-dependencies $github/invenio-oauthclient
-pip3 install --no-dependencies $github/invenio-pidstore
-pip3 install --no-dependencies $github/invenio-previewer
-pip3 install --no-dependencies $github/invenio-rdm-records
-pip3 install --no-dependencies $github/invenio-records
-pip3 install --no-dependencies $github/invenio-records-files
-pip3 install --no-dependencies $github/invenio-records-permissions
-pip3 install --no-dependencies $github/invenio-records-resources
-pip3 install --no-dependencies $github/invenio-records-rest
-pip3 install --no-dependencies $github/invenio-records-ui
-pip3 install --no-dependencies $github/invenio-requests
-pip3 install --no-dependencies $github/invenio-rest
-pip3 install --no-dependencies $github/invenio-search
-pip3 install --no-dependencies $github/invenio-search-ui
-pip3 install --no-dependencies $github/invenio-theme
-pip3 install --no-dependencies $github/invenio-userprofiles
-pip3 install --no-dependencies $github/invenio-users-resources
-pip3 install --no-dependencies $github/invenio-vocabularies
-pip3 install --no-dependencies $github/invenio-webhooks
+for module in ${invenio[@]}; do
+    pip_install $module --no-dependencies
+done
 
-# For the final one, note that we now *do* allow dependency resolution.
-# Whatever is needed will be stuff that's not one of the essential Invenio
-# packages, so it's okay.  But, we have to capture the errors from pip about
-# things not installed: those are items missed because we turned off
-# dependency resolution for the items above.
+# Don't install this b/c need special version for my development:
+#   pip install --no-dependencies $github/invenio-webhooks
 
-missing=$(pip3 install $github/invenio.git 2>&1 | grep "which is not installed" | tr '<>' ' ' | cut -f4 -d' ' | sort -u)
+# Now, for the final Invenio module, note that we now *do* allow dependency
+# resolution.  In this step, whatever pip says is needed will be stuff that's
+# not one of the essential Invenio packages (which we installed above), so
+# it's okay to let pip install them from PyPI.  But, we have to take note of
+# things that are flagged by pip as not being installed; those are items
+# missed during the round of installations above because we turned off
+# dependency resolution. We will install the missing items separately below.
 
-# Now install the items reported by pip as missing.  We have to do this twice
-# because for some reason, this step also resultsf in a few more missing
-# dependencies being reported.
+print_header "invenio"
+missing=$(pip install $github/invenio.git 2>&1 |\
+          tee /dev/tty | grep "which is not installed" |\
+          tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
 
-more_missing=$(pip3 install ${missing[@]} 2>&1 | grep "which is not installed" | tr '<>' ' ' | cut -f4 -d' ' | sort -u)
+# The array $missing contains a list of the non-invenio packages that are not
+# (yet) installed because we ran pip install --no-dependencies. Now we
+# install them, and track which dependencies are still not installed.  We
+# have to do this because for some reason, this step also results in a few
+# more missing dependencies being reported.
 
-pip3 install ${missing[@]}
+more_missing=()
+for pkg in ${missing[@]}; do
+    print_header $pkg
+    more_missing+=$(pip install $pkg 2>&1 |\
+                    tee /dev/stderr | grep "which is not installed" |\
+                    tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
+    more_missing+=' '
+done
 
-# Finally, install other non-Invenio stuff that Invenio needs.  This list was
-# created by iteratively running the test cases, watching for missing
-# packages, installing them, running tests again, etc., until there were no
-# more errors
+# 3rd round: install the stuff flagged as missing in the 2nd round above.
 
-other=(WTForms==2.3.3 \
+for pkg in ${more_missing[@]}; do
+    pip_install $pkg
+done
+
+# Finally, install other non-Invenio stuff needed for Invenio development.
+# This list was created by iteratively running the test cases, watching for
+# missing packages, installing them, running tests again, etc., until there
+# were no more errors.
+#
+# WARNING: in some cases the order here matters. Don't just blindly put this
+# into alphabetical order.
+
+other=(autosemver==1.0.0 \
+       isbnid_fork \
+       WTForms==2.3.3 \
        Flask-Alembic \
+       Flask-Menu \
+       Flask-Breadcrumbs \
        SQLAlchemy-Continuum \
        arrow \
        bleach \
@@ -102,20 +167,26 @@ other=(WTForms==2.3.3 \
        jsonref \
        jsonresolver \
        jsonschema \
+       jsmin \
        luqum \
        marshmallow_utils \
        mistune \
        mock \
+       node-semver==0.1.1 \
        pytest \
        pytest-cov \
        pytest-pep8 \
        pyyaml \
        wand \
+       webargs==5.5.2 \
        xmltodict==0.12.0 \
+       Sphinx \
+       check-manifest \
+       isort \
+       pydocstyle \
+       Flask-Debugtoolbar \
 )
 
-pip3 install ${other[@]}
-
-# Additional things needed for other parts, like the documentaion build chain.
-
-pip3 install Sphinx check-manifest isort pydocstyle
+for pkg in ${other[@]}; do
+    pip_install $pkg
+done
