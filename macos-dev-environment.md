@@ -60,7 +60,8 @@ Next, follow this recipe:
 3. `pyenv virtualenv 3.9.13 invenio-dev`
 4. Exit your shell/bash **again**, and restart your shell/bash.
 5. `pyenv activate invenio-dev`
-6. Run the [associated shell script](install-req-from-github.sh). This will install all the Invenio Python packages and their dependencies from the GitHub source repositories.
+6. Run the [associated shell script](install-req-from-github.sh). This will install all the Invenio Python packages and their dependencies from the GitHub source repositories. Note that it will take a very long time.
+    * Alternatively, you can use the [`pip-freeze-2022-11-01.txt`](pip-freeze-2022-11-01.txt) file in this directory, containing the output of `pip freeze` after I did the installation on 2022-11-01 using Python 3.9.13 on a macOS 10.15 system. To use the freeze file, run `pip install -r pip-freeze-2022-11-01.txt`.
 7. `nvm use 14.0.0`
 8. Start Docker (using the macOS Finder).
 9. `invenio-cli check-requirements --development` and check that everything is green.
