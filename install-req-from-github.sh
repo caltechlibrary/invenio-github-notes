@@ -72,7 +72,7 @@ invenio=($github/invenio-access \
          $github/invenio-oauthclient \
          $github/invenio-pages \
          $github/invenio-pidstore \
-         $github/invenio-previewer \
+#         $github/invenio-previewer \
          $github/invenio-rdm-records \
          $github/invenio-records \
          $github/invenio-records-files \
@@ -116,10 +116,24 @@ missing=$(pip install $github/invenio.git 2>&1 |\
           tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
 
 # The array $missing contains a list of the non-invenio packages that are not
-# (yet) installed because we ran pip install --no-dependencies. Now we
-# install them, and track which dependencies are still not installed.  We
-# have to do this because for some reason, this step also results in a few
-# more missing dependencies being reported.
+# (yet) installed because we ran pip install --no-dependencies. Next, we
+# install them these missing depdendencies, and track which dependencies are
+# still not installed when we do so.  We have to do it this way because for
+# some reason, this round of installations still results in a few more
+# missing dependencies being reported.
+
+# But first, special cases: invenio-previewer and invenio-cli needs old
+# versions of some python packages, and we have to install them explicitly
+# before we let pip's automatic resolution grab newer versions. So:
+
+pip_install nbconvert==6.5.4
+pip_install mistune==0.8.1
+pip_install docker==5.0.3
+pip_install cookiecutter==1.7.3
+pip_install Flask-SQLAlchemy==2.5.1
+pip_install uritemplate.py==0.6.0
+
+# OK, now let's get to it.
 
 more_missing=()
 for pkg in ${missing[@]}; do
@@ -170,7 +184,6 @@ other=(autosemver==1.0.0 \
        jsmin \
        luqum \
        marshmallow_utils \
-       mistune \
        mock \
        node-semver==0.1.1 \
        pytest \
