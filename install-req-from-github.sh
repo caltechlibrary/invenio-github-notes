@@ -122,9 +122,9 @@ missing=$(pip install $github/invenio.git 2>&1 |\
 # some reason, this round of installations still results in a few more
 # missing dependencies being reported.
 
-# But first, special cases: invenio-previewer and invenio-cli needs old
-# versions of some python packages, and we have to install them explicitly
-# before we let pip's automatic resolution grab newer versions. So:
+# But first, special cases: some invenio modules need old versions of some
+# python packages, and we have to install them explicitly before we let pip's
+# automatic resolution grab newer versions. So:
 
 pip_install nbconvert==6.5.4
 pip_install mistune==0.8.1
@@ -136,14 +136,18 @@ pip_install virtualenv==20.13.0
 
 # OK, now let's get to it.
 
-more_missing=()
+missing=()
 for pkg in ${missing[@]}; do
     print_header $pkg
-    more_missing+=$(pip install $pkg 2>&1 |\
-                    tee /dev/stderr | grep "which is not installed" |\
-                    tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
-    more_missing+=' '
+    missing+=$(pip install $pkg 2>&1 |\
+               tee /dev/stderr | grep "which is not installed" |\
+               tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
+    missing+=' '
 done
+
+# Uniquefy the list
+
+IFS=" " read -r -a more_missing <<< "$(echo "${missing[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 
 # 3rd round: install the stuff flagged as missing in the 2nd round above.
 
