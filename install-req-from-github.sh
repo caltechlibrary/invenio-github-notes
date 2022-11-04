@@ -95,7 +95,7 @@ invenio=($github/invenio-access \
          $github/Flask-Security-Invenio.git \
 )
 
-for module in ${invenio[@]}; do
+for module in ${invenio[*]}; do
     pip_install $module --no-dependencies
 done
 
@@ -137,21 +137,20 @@ pip_install virtualenv==20.13.0
 # OK, now let's get to it.
 
 more_missing=()
-for pkg in ${missing[@]}; do
+for pkg in ${missing[*]}; do
     print_header $pkg
-    more_missing+=$(pip install $pkg 2>&1 |\
+    more_missing+=($(pip install $pkg 2>&1 |\
                     tee /dev/stderr | grep "which is not installed" |\
-                    tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
-    more_missing+=' '
+                    tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u))
 done
 
 # Uniquefy the list.
 
-missing=($(printf "%s\n" "${more_missing[@]}" | sort -u | tr '\n' ' '))
+missing=($(printf "%s\n" ${more_missing[*]} | sort -u | tr '\n' ' '))
 
 # 3rd round: install the stuff flagged as missing in the 2nd round above.
 
-for pkg in ${missing[@]}; do
+for pkg in ${missing[*]}; do
     pip_install $pkg
 done
 
@@ -166,10 +165,7 @@ done
 other=(autosemver==1.0.0 \
        isbnid_fork \
        WTForms==2.3.3 \
-       Flask-Alembic \
        Flask-Menu \
-       Flask-Breadcrumbs \
-       SQLAlchemy-Continuum \
        arrow \
        bleach \
        click-default-group \
@@ -177,25 +173,16 @@ other=(autosemver==1.0.0 \
        elasticsearch \
        elasticsearch-dsl \
        flask-resources \
-       fs \
        "ftfy<5.0.0" \
-       github3.py \
        httpretty \
        humanize \
        jsonpatch \
        jsonref \
        jsonresolver \
        jsonschema \
-       jsmin \
-       luqum \
-       marshmallow_utils \
        mock \
        node-semver==0.1.1 \
-       pytest \
-       pytest-cov \
        pytest-pep8 \
-       pyyaml \
-       wand \
        webargs==5.5.2 \
        xmltodict==0.12.0 \
        Sphinx \
@@ -205,6 +192,6 @@ other=(autosemver==1.0.0 \
        Flask-Debugtoolbar \
 )
 
-for pkg in ${other[@]}; do
+for pkg in ${other[*]}; do
     pip_install $pkg
 done
