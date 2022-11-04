@@ -136,22 +136,22 @@ pip_install virtualenv==20.13.0
 
 # OK, now let's get to it.
 
-missing=()
+more_missing=()
 for pkg in ${missing[@]}; do
     print_header $pkg
-    missing+=$(pip install $pkg 2>&1 |\
-               tee /dev/stderr | grep "which is not installed" |\
-               tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
-    missing+=' '
+    more_missing+=$(pip install $pkg 2>&1 |\
+                    tee /dev/stderr | grep "which is not installed" |\
+                    tr '<>,~=' ' ' | cut -f4 -d' ' | sort -u)
+    more_missing+=' '
 done
 
-# Uniquefy the list
+# Uniquefy the list.
 
-IFS=" " read -r -a more_missing <<< "$(echo "${missing[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
+missing=($(printf "%s\n" "${more_missing[@]}" | sort -u | tr '\n' ' '))
 
 # 3rd round: install the stuff flagged as missing in the 2nd round above.
 
-for pkg in ${more_missing[@]}; do
+for pkg in ${missing[@]}; do
     pip_install $pkg
 done
 
